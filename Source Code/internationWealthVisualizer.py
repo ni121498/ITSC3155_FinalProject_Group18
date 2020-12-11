@@ -90,7 +90,7 @@ data_GNI = [
         marker_line_color='darkgray',
         marker_line_width=0.5,
         colorbar_tickprefix='$',
-        colorbar_title='GNP<br>US$'
+        colorbar_title='GNI<br>US$'
     )
 ]
 
@@ -105,7 +105,7 @@ data_GNI_Per_Capita = [
         marker_line_color='darkgray',
         marker_line_width=0.5,
         colorbar_tickprefix='$',
-        colorbar_title='GNP Per Capita<br>US$'
+        colorbar_title='GNI Per Capita<br>US$'
     )
 ]
 
