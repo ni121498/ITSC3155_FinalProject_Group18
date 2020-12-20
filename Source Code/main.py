@@ -17,6 +17,7 @@ df5 = pd.read_csv('../Data_Sets/gdpContAvg.csv')
 df6 = pd.read_csv('../Data_Sets/gpdPerCap_ContAvg.csv')
 df7 = pd.read_csv('../Data_Sets/gniContAvg.csv')
 df8 = pd.read_csv('../Data_Sets/gniPerCap_ContAvg.csv')
+df9 = pd.read_csv('../Data_Sets/countryCurrencies.csv')
 
 
 
@@ -48,7 +49,7 @@ def gdp_per_cap_data(year):
             locations=df2['Country_Code'],
             z=df2[year],
             text=df2['Country_Name'],
-            colorscale='Blues',
+            colorscale='Sunsetdark',
             autocolorscale=False,
             reversescale=True,
             marker_line_color='darkgray',
@@ -94,6 +95,18 @@ def gni_per_cap_data(year):
         )
     ]
     return data
+
+def currency_data(year):
+    data=px.choropleth(
+        df9,
+        locations='Country_Code',
+        color='Currency',
+        hover_data=['Country_Name', year],
+        title='Currencies of the World and Value in US$ in ' + year
+
+    )
+    fig = go.Figure(data)
+    return fig
 
 # loading continents json file
 continents = json.load(open('../Data_Sets/continents.json'))
@@ -148,6 +161,7 @@ def gni_per_cap_cont_data(year):
     fig = go.Figure(data)
     return fig
 
+regions = json.load(open('../Data_Sets/custom.geo.json'))
 
 def gdp_region_data(year):
     data = [
@@ -185,7 +199,7 @@ app.layout = html.Div(children=[
             dcc.Tab(label='Home', children=[
 
             ]),
-            dcc.Tab(label='Interactive Map', children=[
+            dcc.Tab(label='Income', children=[
                 html.Br(),
                 html.Br(),
                 # Choose what year
@@ -232,7 +246,27 @@ app.layout = html.Div(children=[
                 html.Div(id='fig_plot')
 
             ]),
-            dcc.Tab(label='Currency Converter', children=[
+            dcc.Tab(label='Currency', children=[
+                html.Br(),
+                html.Br(),
+                html.Div('This is a view of the world currencies showing how much each currency is in US dollars'),
+                html.Br(),
+                html.Br(),
+                html.Div('Please Select Year'),
+                html.Div(
+                    dcc.Dropdown(
+                        id='curr_drop',
+                        options=[
+                            {'label': '2016', 'value': '2016'},
+                            {'label': '2017', 'value': '2017'},
+                            {'label': '2018', 'value': '2018'},
+                            {'label': '2019', 'value': '2019'}
+                        ]
+                    )
+                ),
+                html.Br(),
+                html.Br(),
+                html.Div(id='curr_plot')
 
             ]),
             dcc.Tab(label='My Page', children=[
@@ -331,54 +365,25 @@ def update_graph(fig_name, selected_year, view):
                 return dcc.Graph(
                     id='Region_GDP16',
                     figure={
-                        'data' : gdp_region_data(selected_year),
+                        'data' : currency_data(selected_year),
                         'layout' : go.Layout(
                             title= 'Global Average GDP of Sub Region in ' + selected_year
                         )
                     }
                 )
 
-# App callback for Fig selection dropdown
 @app.callback(
-    dash.dependencies.Output('view_opt', 'children'),
-    [dash.dependencies.Input('view_dropdown', 'value')])
-def update_view(view):
-    if view == 'region':
-        # Choose Region to display
-        return dcc.Dropdown(
-            id='region_dropdown',
-            options=[
-                {'label': 'Africa', 'value': 'Africa'},
-                {'label': 'Europe', 'value': 'Europe'},
-                {'label': 'North America', 'value': 'North America'},
-                {'label': 'Oceania', 'value': 'Oceania'},
-                {'label': 'South America', 'value': 'South America'}
-            ])
+    dash.dependencies.Output('curr_plot', 'children'),
+    dash.dependencies.Input('curr_drop', 'value')
+)
+def update_currency_fig(selected_year):
+    if selected_year == '2016' or selected_year == '2017' or selected_year == '2018' or selected_year == '2019' :
+        return dcc.Graph(
+            id='Currency_Graph',
+            figure=currency_data(selected_year)
 
-    if view == 'continent':
-        # Choose Region to display
-        return dcc.Dropdown(
-            id='continent_dropdown',
-            options=[
-                {'label': 'Africa', 'value': 'Africa'},
-                {'label': 'Europe', 'value': 'Europe'},
-                {'label': 'North America', 'value': 'North America'},
-                {'label': 'Oceania', 'value': 'Oceania'},
-                {'label': 'South America', 'value': 'South America'},
-                {'label': 'Asia', 'value': 'Asia'}
-            ])
+        )
 
-    if view == 'country':
-        # Choose Region to display
-        # print(df['Country Name'])
-        return dcc.Dropdown(
-            id='country_dropdown',
-            options=[{'label': x, 'value': x} for x in df['Country Name']])
-
-
-# def generateData(year, dataType, filter)
-
-# fig.write_html('world.html', auto_open = True)
 if __name__ == '__main__':
     app.run_server()
     #app.run_server(host='0.0.0.0', port=8124)
