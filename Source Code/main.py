@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objs as go
 import json
 import plotly.express as px
+import base64
 
 
 # collecting data from files
@@ -18,6 +19,8 @@ df6 = pd.read_csv('../Data_Sets/gpdPerCap_ContAvg.csv')
 df7 = pd.read_csv('../Data_Sets/gniContAvg.csv')
 df8 = pd.read_csv('../Data_Sets/gniPerCap_ContAvg.csv')
 df9 = pd.read_csv('../Data_Sets/countryCurrencies.csv')
+pic = '../Data_Sets/globe.png'
+encoded_image = base64.b64encode(open(pic, 'rb').read())
 
 
 
@@ -195,14 +198,31 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Br(),
     html.Div([
-        dcc.Tabs([
+        dcc.Tabs(id='tabs', children=[
             dcc.Tab(label='Home', children=[
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.H1('Keep Track of the Financial Status of the World.', style={'color' : '#779CB7','textAlign' : 'left'}),
+                html.H3('An interactive way of exploring and gaining knowledge on the global wealth', style={'textAlign' : 'left'}),
+                html.H2('Explore. Learn. Interact.', style={'color' : 'blue'}),
+                html.Div(id='tab'),
+                html.Div(
+                    html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode())),
+                    style={'textAlign' : 'right'}
+                )
 
             ]),
-            dcc.Tab(label='Income', children=[
+            dcc.Tab(id='income_pg', label='Income', children=[
                 html.Br(),
                 html.Br(),
                 # Choose what year
+                html.H3('This page provides an interactive map that allows you to gain knowledge about the GDP, GDP Per Capita, GNI, and the GNI Per Capita in the years 2016-2019',
+                        style={'color' : 'red'}),
                 html.Div('Please Select Year'),
                 html.Div(
                     dcc.Dropdown(
@@ -211,8 +231,7 @@ app.layout = html.Div(children=[
                             {'label': '2016', 'value': '2016'},
                             {'label': '2017', 'value': '2017'},
                             {'label': '2018', 'value': '2018'},
-                            {'label': '2019', 'value': '2019'},
-                            {'label': '2020', 'value': '2020'}
+                            {'label': '2019', 'value': '2019'}
                         ])),
                 html.Br(),
 
@@ -236,7 +255,6 @@ app.layout = html.Div(children=[
                         id='view_dropdown',
                         options=[
                             {'label': 'Continent', 'value': 'continent'},
-                            {'label': 'Region', 'value': 'region'},
                             {'label': 'Country', 'value': 'country'}
                         ])),
 
@@ -249,7 +267,8 @@ app.layout = html.Div(children=[
             dcc.Tab(label='Currency', children=[
                 html.Br(),
                 html.Br(),
-                html.Div('This is a view of the world currencies showing how much each currency is in US dollars'),
+                html.H3('This is a view of the world currencies showing how much each currency is in US dollars in the years 2016-2019',
+                        style={'color' : 'red'}),
                 html.Br(),
                 html.Br(),
                 html.Div('Please Select Year'),
@@ -268,19 +287,20 @@ app.layout = html.Div(children=[
                 html.Br(),
                 html.Div(id='curr_plot')
 
-            ]),
-            dcc.Tab(label='My Page', children=[
-
-            ]),
-            dcc.Tab(label='Sign Up', children=[
-
-            ]),
-            dcc.Tab(label='Login', children=[
-
             ])
         ])
     ])
 ])
+
+@app.callback(
+    dash.dependencies.Output('income_pg', 'children'),
+    dash.dependencies.Input('button1', 'n_clicks')
+)
+def button1Click(n_clicks):
+    #changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if n_clicks:
+        return 'income_pg'
+
 
 
 # App callback for Fig selection dropdown and year selection dropdown
